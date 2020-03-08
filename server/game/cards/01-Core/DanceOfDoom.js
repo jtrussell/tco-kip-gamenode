@@ -1,0 +1,23 @@
+const Card = require('../../Card.js');
+
+class DanceOfDoom extends Card {
+    setupCardAbilities(ability) {
+        this.play({
+            target: {
+                activePromptTitle: 'Choose a number',
+                mode: 'options',
+                options: context => [... Array(Math.max.apply(Math, context.game.creaturesInPlay.map(card => card.power)) + 1).keys()].
+                    map(option => ({ name: option, value: option }))
+            },
+            gameAction: ability.actions.destroy(context => ({
+                target: context.option ? context.game.creaturesInPlay.filter(card => card.power === context.option.value) : []
+            })),
+            effect: 'destroy all creatures with power {1}',
+            effectArgs: context => context.option && context.option.value
+        });
+    }
+}
+
+DanceOfDoom.id = 'dance-of-doom';
+
+module.exports = DanceOfDoom;

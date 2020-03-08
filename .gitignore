@@ -1,0 +1,16 @@
+bower_components
+node_modules
+typings
+coverage
+*.log
+.vscode
+jasmine.json
+server/events.txt
+.DS_Store
+server/logs/*.gz
+build/
+!tsconfig.json
+data
+mongodb
+
+/.idea/

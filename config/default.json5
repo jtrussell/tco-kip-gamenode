@@ -1,0 +1,19 @@
+{
+  "env": "production",
+  "mqHost": "team-tco.herokuapp.com",
+  "mqPort": 6000,
+  "minLobbyChatTime": 0,
+  "lobby": {
+    "appName": "TCO2",
+    "blockDisposableEmail": false,
+    "requireActivation": false,
+    "lowerDeckThreshold": 1,
+    "middleDeckThreshold": 20,
+    "upperDeckThreshold": 300
+  },
+  "gameNode": {
+    "name": "node0",
+    "host": "team-tco-gamenode.herokuapp.com",
+    "socketioPort": 9500,
+  }
+}

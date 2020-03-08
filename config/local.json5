@@ -1,0 +1,40 @@
+{
+    env: 'development',
+    secret: 'somethingverysecret',
+    dbPath: 'mongodb://mongo:27017/keyforge',
+    mqHost: '127.0.0.1',
+    mqPort: 6000,
+    minLobbyChatTime: 0,
+    lobby: {
+        port: 4000,
+        appName: 'The Crucible Online',
+        emailFromAddress: 'noreply@thecrucible.online',
+        blockDisposableEmail: false,
+        requireActivation: false,
+        hmacSecret: 'somethingevenmoresecret',
+        lowerDeckThreshold: 1,
+        middleDeckThreshold: 2,
+        upperDeckThreshold: 3
+
+        /*
+         * Other server configurations used, but not specified, include:
+         *  - cookieLifetime
+         *  - emailKey
+         *  - hmacSecret
+         *  - captchaKey
+         */
+    },
+
+    gameNode: {
+        name: 'node0',
+        host: 'localhost',
+        socketioPort: 5000,
+
+        /*
+         * Other game node configurations used, but not specified, include:
+         *  - keyPath
+         *  - certPath
+         *  - maxGames
+         */
+    }
+}

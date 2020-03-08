@@ -1,0 +1,41 @@
+{
+  "name": "tco-kip-gamenode",
+  "version": "1.0.0",
+  "description": "...",
+  "main": "index.js",
+  "scripts": {
+    "mongod": "mongod --dbpath=/data --port 27017\n",
+    "game": "PORT=5000 REDIS_URL=redis://localhost:4001 MONGODB_CONNECTION_STRING=mongodb://127.0.0.1:27017/keyforge node server/gamenode",
+    "lint": "eslint --ext=js server/"
+  },
+  "author": "Various",
+  "license": "MIT",
+  "dependencies": {
+    "babel-eslint": "^10.1.0",
+    "config": "^1.26.2",
+    "connect-history-api-fallback": "^1.6.0",
+    "connect-mongo": "^1.3.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.5",
+    "express-session": "^1.15.6",
+    "jsonwebtoken": "^8.4.0",
+    "moment": "^2.18.1",
+    "mongodb": "^2.2.31",
+    "monk": "^4.0.0",
+    "query-string": "^6.2.0",
+    "redis": "^3.0.2",
+    "regenerator-runtime": "^0.13.3",
+    "request": "^2.88.2",
+    "seedrandom": "^3.0.5",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "underscore": "^1.8.3",
+    "uuid": "^3.1.0",
+    "winston": "^2.2.0",
+    "winston-daily-rotate-file": "^1.7.2"
+  },
+  "devDependencies": {
+    "command-line-args": "^5.1.1",
+    "eslint": "^4.7.2"
+  }
+}
