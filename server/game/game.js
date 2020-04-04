@@ -594,12 +594,7 @@ class Game extends EventEmitter {
                 bidWinner.chains = this.adaptiveData.bidWinChains;
                 this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[1])[0];
                 if(this.adaptiveData.bidWinner === this.adaptiveData.records[1]) {
-                    const deckData = players[playerNames[0]].deckData;
-                    const houses = players[playerNames[0]].houses;
-                    players[playerNames[0]].deckData = players[playerNames[1]].deckData;
-                    players[playerNames[0]].houses = players[playerNames[1]].houses;
-                    players[playerNames[1]].houses = houses;
-                    players[playerNames[1]].deckData = deckData;
+                    this.swapPlayersDecks();
                 }
             }
 
@@ -608,12 +603,7 @@ class Game extends EventEmitter {
             }
 
             if(this.gameFormat === 'reversal' || (this.gameType === 'adaptive' && this.adaptiveData.match === 2)) {
-                const deckData = players[playerNames[0]].deckData;
-                const houses = players[playerNames[0]].houses;
-                players[playerNames[0]].deckData = players[playerNames[1]].deckData;
-                players[playerNames[0]].houses = players[playerNames[1]].houses;
-                players[playerNames[1]].houses = houses;
-                players[playerNames[1]].deckData = deckData;
+                this.swapPlayersDecks();
             }
         }
 
@@ -625,17 +615,14 @@ class Game extends EventEmitter {
             this.timeLimit.initialiseTimeLimit(timeLimitStartType, timeLimitInMinutes);
         }
 
-        for(let player of this.getPlayers()) {
-            player.initialise();
-        }
+        this.initialisePlayers();
 
         this.allCards = _.reduce(this.getPlayers(), (cards, player) => {
             return cards.concat(player.deck);
         }, []);
 
         const forcedStartingPlayer = this.adaptiveData.startingPlayer;
-
-        const pipeline = [
+        let pipeline = [
             new SetupPhase(this, forcedStartingPlayer),
             new SimpleStep(this, () => this.beginRound())
         ];
@@ -652,6 +639,23 @@ class Game extends EventEmitter {
         this.roundDouble = 1;
 
         this.continue();
+    }
+
+    initialisePlayers() {
+        for(let player of this.getPlayers()) {
+            player.initialise();
+        }
+    }
+
+    swapPlayersDecks() {
+        const players = this.getPlayers();
+        const deckData = players[0].deckData;
+        const houses = players[0].houses;
+
+        players[0].deckData = players[1].deckData;
+        players[0].houses = players[1].houses;
+        players[1].houses = houses;
+        players[1].deckData = deckData;
     }
 
     checkForTimeExpired() {

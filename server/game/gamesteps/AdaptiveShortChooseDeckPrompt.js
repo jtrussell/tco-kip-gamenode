@@ -1,10 +1,14 @@
 const AllPlayerPrompt = require('./allplayerprompt');
-const AdaptiveBidPrompt = require('./AdaptiveBidPrompt');
+const AdaptiveShortBidPrompt = require('./AdaptiveShortBidPrompt');
 
 class AdaptiveShortChooseDeckPrompt extends AllPlayerPrompt {
     constructor(game) {
         super(game);
         this.deckChoices = {};
+        this.deckOwners = {};
+        const players = this.game.getPlayers();
+        const decks = players.map(player => player.deckData);
+        decks.forEach(deck => this.deckOwners[deck.uuid] = deck.username);
     }
 
     completionCondition(player) {
@@ -35,7 +39,7 @@ class AdaptiveShortChooseDeckPrompt extends AllPlayerPrompt {
 
         const selectedDeck = decks.find(deck => deck.uuid === uuid);
 
-        this.game.addAlert('info', '{0} chose {1}', player, selectedDeck.name);
+        this.game.addMessage(`${player.name} picked ${selectedDeck.name}`);
         this.deckChoices[player.name] = uuid;
         return true;
     }
@@ -46,20 +50,35 @@ class AdaptiveShortChooseDeckPrompt extends AllPlayerPrompt {
         }
 
         const players = this.game.getPlayers();
+        const deckMap = {};
+        players.map(player => deckMap[player.deckData.uuid] = player.deckData);
+
         const playerNames = Object.keys(this.deckChoices);
 
-        const choiceA = Object.values(this.deckChoices)[0];
-        const choiceB = Object.values(this.deckChoices)[0];
+        const playerAChoice = deckMap[this.deckChoices[playerNames[0]]];
+        const playerBChoice = deckMap[this.deckChoices[playerNames[1]]];
 
-        if(choiceA !== choiceB) {
-            //this.game.rematch();
+        if(playerAChoice.username === playerNames[0] && playerBChoice.username === playerNames[1]) {
+            this.game.addMessage('Both players picked their own deck');
+            return true;
         }
 
-        //const deckAOwner =
-        //this.game.addAlert('info', '{0} bids 0 for their deck', deckOwner);
+        if(playerAChoice.username === playerNames[1] && playerBChoice.username === playerNames[0]) {
+            this.game.addMessage('Both players picked their opponent\'s deck');
+            this.game.swapPlayersDecks();
+            this.game.initialisePlayers();
+            return true;
+        }
 
-        //const bidder = this.game.getPlayers().find(p => p.name === this.game.adaptiveData.records[1]);
-        //this.game.queueStep(new AdaptiveBidPrompt(this.game, bidder, 0));
+        if(playerAChoice.uuid === playerBChoice.uuid) {
+            this.game.addMessage(`Both players picked ${playerAChoice.username}'s deck`);
+            this.game.addAlert('info', '{0} bids 0 for their deck', playerAChoice.username);
+
+            const bidder = players.find(p => p.name !== playerAChoice.username);
+            this.game.queueStep(new AdaptiveShortBidPrompt(this.game, bidder, 0, playerAChoice.uuid));
+            return true;
+        }
+
         return true;
     }
 }

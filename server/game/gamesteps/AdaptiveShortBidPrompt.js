@@ -1,8 +1,8 @@
 const OptionsMenuPrompt = require('./OptionsMenuPrompt');
 const logger = require('../../log');
 
-class AdaptiveBidPrompt extends OptionsMenuPrompt {
-    constructor(game, bidder, lastBid) {
+class AdaptiveShortBidPrompt extends OptionsMenuPrompt {
+    constructor(game, bidder, lastBid, deckUuid) {
         const options = [];
 
         for(let i = lastBid + 1; i < 24; i++) {
@@ -32,10 +32,14 @@ class AdaptiveBidPrompt extends OptionsMenuPrompt {
         super(game, bidder, properties);
         this.bidder = bidder;
         this.lastBid = lastBid;
+        this.deckUuid = deckUuid;
     }
 
     onCompleted() {
-        const newBidder = this.game.getPlayers().find(p => p !== this.bidder);
+        const players = this.game.getPlayers();
+        const decks = players.map(player => player.deckData);
+
+        const newBidder = players.find(p => p !== this.bidder);
         logger.info(`${this.bidder.name} bids ${this.choice}`);
 
         if(this.choice === -1) {
@@ -43,15 +47,21 @@ class AdaptiveBidPrompt extends OptionsMenuPrompt {
             this.game.addAlert('info', `${newBidder.name} wins at ${this.lastBid} chain${this.lastBid === 1 ? '' : 's'}`);
             logger.info(`${this.bidder.name} passes`);
             logger.info(`${newBidder.name} wins at ${this.lastBid} chain${this.lastBid === 1 ? '' : 's'}`);
-            this.game.adaptiveData.bidWinner = newBidder.name;
-            this.game.adaptiveData.bidWinChains = this.lastBid;
-            this.game.rematch();
+
+            newBidder.chains = this.lastBid;
+            const deckBidFor = decks.find(d => d.uuid === this.deckUuid);
+
+            if(newBidder.name !== deckBidFor.username) {
+                this.game.swapPlayersDecks();
+                this.game.initialisePlayers();
+            }
+
             return;
         }
 
         this.game.addAlert('info', `${this.bidder.name} bids ${this.choice} chains`);
-        this.game.queueStep(new AdaptiveBidPrompt(this.game, newBidder, this.choice));
+        this.game.queueStep(new AdaptiveShortBidPrompt(this.game, newBidder, this.choice, this.deckUuid));
     }
 }
 
-module.exports = AdaptiveBidPrompt;
+module.exports = AdaptiveShortBidPrompt;
