@@ -33,6 +33,7 @@ const MenuCommands = require('./MenuCommands');
 const TimeLimit = require('./TimeLimit');
 const PlainTextGameChatFormatter = require('./PlainTextGameChatFormatter');
 const CardVisibility = require('./CardVisibility');
+const AdaptiveShortChooseDeckPrompt = require('./gamesteps/AdaptiveShortChooseDeckPrompt');
 
 class Game extends EventEmitter {
     constructor(details, options = {}) {
@@ -632,10 +633,18 @@ class Game extends EventEmitter {
             return cards.concat(player.deck);
         }, []);
 
-        this.pipeline.initialise([
-            new SetupPhase(this, this.adaptiveData.startingPlayer),
+        const forcedStartingPlayer = this.adaptiveData.startingPlayer;
+
+        const pipeline = [
+            new SetupPhase(this, forcedStartingPlayer),
             new SimpleStep(this, () => this.beginRound())
-        ]);
+        ];
+
+        if(this.gameType === 'adaptiveShort') {
+            pipeline.unshift(new AdaptiveShortChooseDeckPrompt(this));
+        }
+
+        this.pipeline.initialise(pipeline);
 
         this.playStarted = true;
         this.startedAt = new Date();

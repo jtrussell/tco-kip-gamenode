@@ -7,6 +7,7 @@ class PlayerPromptState {
         this.selectOrder = false;
         this.menuTitle = '';
         this.promptTitle = '';
+        this.promptType = '';
         this.buttons = [];
         this.controls = [];
 
@@ -37,6 +38,7 @@ class PlayerPromptState {
         this.cardDamage = prompt.cardDamage || {};
         this.menuTitle = prompt.menuTitle || '';
         this.promptTitle = prompt.promptTitle;
+        this.promptType = prompt.promptType || '';
         this.buttons = _.map(prompt.buttons || [], button => {
             if(button.card) {
                 let card = button.card;
@@ -75,6 +77,7 @@ class PlayerPromptState {
             selectOrder: this.selectOrder,
             menuTitle: this.menuTitle,
             promptTitle: this.promptTitle,
+            promptType: this.promptType,
             buttons: this.buttons,
             controls: this.controls
         };

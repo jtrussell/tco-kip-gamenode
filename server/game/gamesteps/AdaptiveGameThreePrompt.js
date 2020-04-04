@@ -21,7 +21,6 @@ class AdaptiveGameThreePrompt extends AllPlayerPrompt {
                 { arg: 'yes', text: 'Yes' }
             ]
         };
-        //{ arg: 'no', text: 'No' }
     }
 
     waitingPrompt() {
@@ -33,9 +32,6 @@ class AdaptiveGameThreePrompt extends AllPlayerPrompt {
     onMenuCommand(player, arg) {
         if(arg === 'yes') {
             this.completedPlayers.add(player);
-        //} else {
-            //this.game.addAlert('info', '{0} would not like to continue', player);
-            //this.cancelled = true;
         }
 
         return true;
