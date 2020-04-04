@@ -617,10 +617,6 @@ class Game extends EventEmitter {
 
         this.initialisePlayers();
 
-        this.allCards = _.reduce(this.getPlayers(), (cards, player) => {
-            return cards.concat(player.deck);
-        }, []);
-
         const forcedStartingPlayer = this.adaptiveData.startingPlayer;
         let pipeline = [
             new SetupPhase(this, forcedStartingPlayer),
@@ -645,6 +641,10 @@ class Game extends EventEmitter {
         for(let player of this.getPlayers()) {
             player.initialise();
         }
+
+        this.allCards = _.reduce(this.getPlayers(), (cards, player) => {
+            return cards.concat(player.deck);
+        }, []);
     }
 
     swapPlayersDecks() {
