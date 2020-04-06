@@ -1,4 +1,3 @@
-
 const Card = require('./Card.js');
 const Spectator = require('./spectator.js');
 const Player = require('./player.js');
@@ -10,7 +9,12 @@ class GameChat {
 
     addChatMessage(format, player, message) {
         let args = [
-            { name: player.name, argType: 'player', role: player.user && player.user.role },
+            {
+                name: player.name,
+                argType: 'player',
+                role: player.user && player.user.role,
+                avatar: player.user.avatar
+            },
             message
         ];
         let formattedMessage = this.formatMessage(format, args);
@@ -22,9 +26,19 @@ class GameChat {
         let args = Array.from(arguments).slice(1);
         let argList = args.map(arg => {
             if(arg instanceof Spectator) {
-                return { name: arg.name, argType: 'nonAvatarPlayer', role: arg.role };
+                return {
+                    name: arg.name,
+                    argType: 'nonAvatarPlayer',
+                    role: arg.role,
+                    avatar: arg.avatar
+                };
             } else if(arg && arg.name && arg.argType === 'player') {
-                return { name: arg.name, argType: arg.argType, role: arg.role };
+                return {
+                    name: arg.name,
+                    argType: arg.argType,
+                    role: arg.role,
+                    avatar: arg.avatar
+                };
             }
 
             return arg;
@@ -63,7 +77,11 @@ class GameChat {
                         returnedFraments.push({ name: arg.name, image: arg.image, label: arg.name, type: arg.getType(),
                             maverick: arg.maverick, anomaly: arg.anomaly, cardPrintedAmber: arg.cardPrintedAmber, argType: 'card' });
                     } else if(arg instanceof Spectator || arg instanceof Player) {
-                        returnedFraments.push({ name: arg.user.username, argType: 'nonAvatarPlayer' });
+                        returnedFraments.push({
+                            name: arg.user.username,
+                            argType: 'nonAvatarPlayer',
+                            avatar: arg.user.avatar
+                        });
                     } else {
                         returnedFraments.push(arg);
                     }

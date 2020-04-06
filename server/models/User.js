@@ -1,5 +1,11 @@
 const Settings = require('../settings');
 
+const champions = {
+    Rodion: true,
+    jfilipeg: true,
+    Dorian11: true
+};
+
 class User {
     constructor(userData) {
         this.userData = userData;
@@ -58,8 +64,8 @@ class User {
         return this.userData.email;
     }
 
-    get enableGravatar() {
-        return this.userData.enableGravatar;
+    get avatar() {
+        return this.userData.avatar;
     }
 
     get verified() {
@@ -82,6 +88,11 @@ class User {
         return this.userData.permissions && this.userData.permissions.isSupporter;
     }
 
+    get isKiP() {
+        return this.userData.permissions && this.userData.permissions.isKiP;
+    }
+
+
     get role() {
         if(this.isAdmin) {
             return 'admin';
@@ -95,15 +106,15 @@ class User {
             return 'supporter';
         }
 
+        if(this.isKiP) {
+            return 'kip';
+        }
+
+        if(champions[this.username]) {
+            return 'champion';
+        }
+
         return 'user';
-    }
-
-    get patreon() {
-        return this.userData.patreon;
-    }
-
-    set patreon(value) {
-        this.userData.patreon = value;
     }
 
     block(otherUser) {
@@ -124,7 +135,7 @@ class User {
             promptedActionWindows: this.userData.promptedActionWindows,
             permissions: this.userData.permissions,
             verified: this.userData.verified,
-            enableGravatar: this.userData.enableGravatar
+            avatar: this.userData.avatar
         };
 
         user = Settings.getUserWithDefaultsSet(user);
@@ -136,7 +147,8 @@ class User {
         return {
             username: this.username,
             name: this.username,
-            role: this.role
+            role: this.role,
+            avatar: this.userData.avatar
         };
     }
 
