@@ -9,11 +9,13 @@ class ChessClock extends Clock {
     start() {
         this.mode = 'down';
         super.start();
+        console.log('start clock', this.timeLeft);
     }
 
     stop() {
         super.stop();
         this.mode = 'stop';
+        console.log('stop clock', this.timeLeft);
     }
 
     timeRanOut() {

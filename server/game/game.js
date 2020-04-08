@@ -39,7 +39,6 @@ class Game extends EventEmitter {
     constructor(details, options = {}) {
         super();
 
-        this.randomFn = Math.random;
         this.effectEngine = new EffectEngine(this);
         this.playersAndSpectators = {};
         this.gameChat = new GameChat();
@@ -65,7 +64,7 @@ class Game extends EventEmitter {
         this.cancelPromptUsed = false;
         this.currentPhase = '';
         this.password = details.password;
-        this.useGameTimeLimit = details.useGameTimeLimit;
+        this.useChessClock = details.useChessClock;
         this.gameTimeLimit = details.gameTimeLimit;
         this.timeLimit = new TimeLimit(this);
 
@@ -79,9 +78,13 @@ class Game extends EventEmitter {
 
         this.cardVisibility = new CardVisibility(this);
 
+        const clockDetails = {
+            type: 'chess',
+            time: (12 * 60 + 30) * 1000 // 12.5 minutes
+        };
+
         _.each(details.players, player => {
-            this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, this, undefined, {
-                randomFn: this.randomFn,
+            this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, this, clockDetails, {
                 chains: player.chains
             });
         });
@@ -609,12 +612,6 @@ class Game extends EventEmitter {
 
         this.playersAndSpectators = players;
 
-        if(this.useGameTimeLimit) {
-            let timeLimitStartType = 'whenSetupFinished';
-            let timeLimitInMinutes = this.gameTimeLimit;
-            this.timeLimit.initialiseTimeLimit(timeLimitStartType, timeLimitInMinutes);
-        }
-
         this.initialisePlayers();
 
         const forcedStartingPlayer = this.adaptiveData.startingPlayer;
@@ -656,13 +653,6 @@ class Game extends EventEmitter {
         players[0].houses = players[1].houses;
         players[1].houses = houses;
         players[1].deckData = deckData;
-    }
-
-    checkForTimeExpired() {
-        if(this.timeLimit.isTimeLimitReached && !this.finishedAt) {
-            this.addAlert('success', 'The game has ended because the timer has expired.  Timed wins are not currently implemented');
-            this.finishedAt = new Date();
-        }
     }
 
     /*
@@ -848,7 +838,7 @@ class Game extends EventEmitter {
             return false;
         }
 
-        this.playersAndSpectators[user.username] = new Player(socketId, user, this.owner === user.username, this, undefined, { randomFn: this.randomFn });
+        this.playersAndSpectators[user.username] = new Player(socketId, user, this.owner === user.username, this, undefined, {});
 
         return true;
     }
@@ -1032,7 +1022,6 @@ class Game extends EventEmitter {
 
         this.addMessage(playerResources);
         this.addAlert('startofround', `Turn ${this.round}`);
-        this.checkForTimeExpired();
     }
 
     playerKeys(player) {
@@ -1107,8 +1096,6 @@ class Game extends EventEmitter {
                 playerState[player.name] = player.getState(activePlayer, this.gameFormat);
             }
 
-            this.timeLimit.checkForTimeLimitReached();
-
             return {
                 id: this.id,
                 gameFormat: this.gameFormat,
@@ -1129,7 +1116,7 @@ class Game extends EventEmitter {
                 started: this.started,
                 winner: this.winner ? this.winner.name : undefined,
                 cancelPromptUsed: this.cancelPromptUsed,
-                useGameTimeLimit: this.useGameTimeLimit,
+                useChessClock: this.useChessClock,
                 gameTimeLimitStarted: this.timeLimit.timeLimitStarted,
                 gameTimeLimitStartedAt: this.timeLimit.timeLimitStartedAt,
                 gameTimeLimitTime: this.timeLimit.timeLimitInMinutes

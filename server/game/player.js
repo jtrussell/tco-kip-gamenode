@@ -7,9 +7,8 @@ const PlayableLocation = require('./playablelocation');
 const PlayerPromptState = require('./playerpromptstate');
 
 class Player extends GameObject {
-    constructor(id, user, owner, game, clockdetails, options = {}) {
+    constructor(id, user, owner, game, clockDetails, options = {}) {
         super(game);
-        this.randomFn = options.randomFn;
         this.user = user;
         this.emailHash = this.user.emailHash;
         this.id = id;
@@ -35,7 +34,7 @@ class Player extends GameObject {
         this.keyForged = [];
         this.creatureFought = false;
 
-        this.clock = ClockSelector.for(this, clockdetails);
+        this.clock = ClockSelector.for(this, clockDetails);
         this.showDeck = false;
         this.role = user.role;
 
@@ -61,9 +60,6 @@ class Player extends GameObject {
 
     startClock() {
         this.clock.start();
-        if(this.opponent) {
-            this.opponent.clock.opponentStart();
-        }
     }
 
     stopClock() {
@@ -189,11 +185,7 @@ class Player extends GameObject {
         }
 
         this.game.emitEvent('onDeckShuffled', { player: this });
-
-        const random = Math.random;
-        Math.random = this.randomFn;
         this.deck = _.shuffle(this.deck);
-        Math.random = random;
     }
 
     /**

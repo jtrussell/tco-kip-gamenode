@@ -5,6 +5,7 @@ class HousePhase extends Phase {
     constructor(game) {
         super(game, 'house');
         this.initialise([
+            new SimpleStep(game, () => this.game.activePlayer.startClock()),
             new SimpleStep(game, () => this.chooseHouse()),
             new SimpleStep(game, () => this.takeCardsFromArchives())
         ]);

@@ -5,6 +5,7 @@ class ReadyPhase extends Phase {
     constructor(game) {
         super(game, 'ready');
         this.initialise([
+            new SimpleStep(game, () => this.game.activePlayer.stopClock()),
             new SimpleStep(game, () => this.readyCards()),
             new SimpleStep(game, () => this.endReadyCardsStep())
         ]);

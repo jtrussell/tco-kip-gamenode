@@ -29,7 +29,7 @@ class TimeLimit {
     }
 
     checkForTimeLimitReached() {
-        if(this.game.useGameTimeLimit && !this.isTimeLimitReached) {
+        if(this.game.useChessClock && !this.isTimeLimitReached) {
             let differenceBetweenStartOfTimerAndNow = moment.duration(moment().diff(this.timeLimitStartedAt));
             if(differenceBetweenStartOfTimerAndNow.asSeconds() / 60 >= this.timeLimitInMinutes) {
                 this.game.addAlert('warning', 'Time up.  The game will end after the current round has finished');

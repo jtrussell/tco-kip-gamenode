@@ -20,7 +20,7 @@ class ClockSelector {
             throw new Error(`Unknown clock selector type of ${details.type}`);
         }
 
-        return factory(player, details.time * 60);
+        return factory(player, details.time);
     }
 }
 

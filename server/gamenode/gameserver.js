@@ -2,7 +2,6 @@ const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const http = require('http');
-//const https = require('https');
 const express = require('express');
 const _ = require('underscore');
 const request = require('request');
@@ -22,24 +21,9 @@ const removeChatMessages = require('../crucibletracker/removeChatMessages');
 class GameServer {
     constructor() {
         this.games = {};
-        this.randomFnForGames = {};
         this.host = process.env.MY_HOST;
         this.protocol = 'http';
-        //this.protocol = 'https';
-
-        //try {
-        //var privateKey = fs.readFileSync('/tco-https-key.pem').toString();
-        //var certificate = fs.readFileSync('/tco-https-cert.pem').toString();
-        //} catch(e) {
-        //this.protocol = 'http';
-        //}
-
-        let server;
-        //if(!privateKey || !certificate) {
-        server = http.createServer(app);
-        //} else {
-        //server = https.createServer({ key: privateKey, cert: certificate }, app);
-        //}
+        const server = http.createServer(app);
 
         this.zmqSocket = new ZmqSocket(this.host, this.protocol, version.build);
         this.zmqSocket.on('onStartGame', this.onStartGame.bind(this));
