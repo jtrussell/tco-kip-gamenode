@@ -577,6 +577,21 @@ class GameServer {
         this.sendGameState(game);
     }
 
+    markGameAsWin(socket) {
+        var game = this.findGameForUser(socket.user.username);
+        if(!game) {
+            return;
+        }
+
+        let player = game.playersAndSpectators[socket.user.username];
+        if(player.isSpectator()) {
+            return;
+        }
+
+        player.game.recordWinner(player, 'manual-report');
+        this.sendGameState(game);
+    }
+
     onGameMessage(socket, command, ...args) {
         var game = this.findGameForUser(socket.user.username);
 
@@ -586,6 +601,10 @@ class GameServer {
 
         if(command === 'leavegame') {
             return this.onLeaveGame(socket);
+        }
+
+        if(command === 'wingame') {
+            return this.markGameAsWin(socket);
         }
 
         if(!game[command] || !_.isFunction(game[command])) {
