@@ -250,7 +250,8 @@ class GameServer {
                 loserDeckID: loser.deckData.uuid,
                 loserKeys: Object.values(loser.keys).filter(v => v).length,
                 loserChecks: getChecksForPlayer(loser.name, events),
-                crucibleGameID: game.id
+                crucibleGameID: game.id,
+                m9: 424
             },
             events
         };
@@ -272,7 +273,8 @@ class GameServer {
                     json: true,
                     body: {
                         events,
-                        gameID: crucibleTrackerGameID
+                        gameID: crucibleTrackerGameID,
+                        m9: 424
                     }
                 }, function(error2, response2, body2) {
                     try {
@@ -375,7 +377,8 @@ class GameServer {
                             player: name,
                             deckSet: player.deckData.expansion,
                             deckID: player.deckData.uuid,
-                            houses: player.houses
+                            houses: player.houses,
+                            m9: 424
                         }
                     });
                 }, Math.random() * 10000);
@@ -653,7 +656,8 @@ class GameServer {
                 hand: data.hand,
                 archives: data.archives,
                 purged: data.purged,
-                turn: game.roundDouble
+                turn: game.roundDouble,
+                m9: 424
             }
         }, function(error, response, body) {
             if(error) {
