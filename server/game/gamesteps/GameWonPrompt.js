@@ -7,7 +7,6 @@ const logger = require('../../log');
 
 class GameWonPrompt extends AllPlayerPrompt {
     constructor(game, winner) {
-        console.log('entering game win prompt');
         super(game);
         this.winner = winner;
         this.clickedButton = {};

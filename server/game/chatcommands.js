@@ -15,6 +15,7 @@ class ChatCommands {
             '/disconnectme': this.disconnectMe,
             '/draw': this.draw,
             '/discard': this.discard,
+            '/discardtopofdeck': this.discardtopofdeck,
             '/forge': this.forge,
             '/manual': this.manual,
             '/modify-clock': this.modifyClock,
@@ -153,6 +154,14 @@ class ChatCommands {
         this.game.addMessage('{0} uses the /discard command to discard {1} card{2} at random', player, num, num > 1 ? 's' : '');
 
         GameActions.discardAtRandom({ amount: num }).resolve(player, this.game.getFrameworkContext());
+    }
+
+    discardtopofdeck(player, args) {
+        let num = this.getNumberOrDefault(args[1], 1);
+
+        this.game.addMessage('{0} uses the /discardtopofdeck command to discard {1} card{2} from top of deck', player, num, num > 1 ? 's' : '');
+
+        GameActions.discardTopOfDeck({ amount: num }).resolve(player, this.game.getFrameworkContext());
     }
 
     cancelPrompt(player) {
