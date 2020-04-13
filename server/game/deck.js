@@ -11,6 +11,7 @@ class Deck {
         }
 
         data.cards = data.cards.map(card => {
+            card.card.foil = card.foil;
             let result = {
                 count: card.count,
                 card: card.card
