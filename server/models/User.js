@@ -3,7 +3,8 @@ const Settings = require('../settings');
 const champions = {
     Rodion: true,
     jfilipeg: true,
-    Dorian11: true
+    Dorian11: true,
+    DaveCavedeiro: true
 };
 
 class User {
