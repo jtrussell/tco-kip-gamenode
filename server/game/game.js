@@ -420,6 +420,16 @@ class Game extends EventEmitter {
         }
     }
 
+    changeActiveHouse(playerName, house) {
+        let player = this.getPlayerByName(playerName);
+        if(!player) {
+            return;
+        }
+
+        this.addAlert('danger', '{0} manually changed their active house to {1}', player, house);
+        player.activeHouse = house.toLowerCase();
+    }
+
     /**
      * This function is called by the client every time a player enters a chat message
      * @param {String} playerName
