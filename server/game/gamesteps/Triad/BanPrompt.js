@@ -3,10 +3,8 @@ const ChooseFirstDeckPrompt = require('./ChooseFirstDeckPrompt');
 
 class TriadBanPrompt extends AllPlayerPrompt {
     completionCondition(player) {
-        const players = this.game.getPlayers();
-        return players.every(player => {
-            return this.game.triadData[player.name].bannedDeck;
-        });
+        const opponent = this.game.getOpponent(player);
+        return !!this.game.triadData[opponent.name].bannedDeck;
     }
 
     activePrompt(player) {
@@ -25,7 +23,10 @@ class TriadBanPrompt extends AllPlayerPrompt {
     }
 
     waitingPrompt() {
-        return { menuTitle: 'Waiting for opponent to ban a deck' };
+        return {
+            menuTitle: 'Waiting for opponent to ban a deck',
+            promptType: 'triad-ban-deck'
+        };
     }
 
     onMenuCommand(player, uuid) {

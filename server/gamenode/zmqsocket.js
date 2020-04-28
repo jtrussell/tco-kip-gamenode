@@ -16,21 +16,12 @@ class ZmqSocket extends EventEmitter {
         this.version = version;
         this.identity = process.env.SERVER || config.gameNode.name;
 
-        //this.socket = zmq.socket('dealer');
-        //this.socket.identity = this.identity;
-        //this.socket.monitor(500, 0);
-
-        //this.socket.connect(`tcp://${config.mqHost}:${config.mqPort}`);
-        //this.socket.on('connect', this.onConnect.bind(this));
-        //this.socket.on('message', this.onMessage.bind(this));
-
         redisSubscriber.on('subscribe', this.onConnect.bind(this));
         redisSubscriber.on('message', this.onMessage.bind(this));
         redisSubscriber.subscribe('gamenode-commands');
     }
 
     send(command, arg) {
-        //this.socket.send(JSON.stringify({ command: command, arg: arg }));
         console.log(`[zmqsocket] Sending command ${command}`);
         redisPublisher.publish('node-registration', JSON.stringify({
             identity: this.identity,

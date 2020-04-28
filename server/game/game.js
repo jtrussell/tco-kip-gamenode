@@ -633,8 +633,11 @@ class Game extends EventEmitter {
             pipeline.unshift(new AdaptiveShortChooseDeckPrompt(this));
         }
 
+
         if(this.gameType === 'triad') {
-            pipeline.unshift(new TriadBanPrompt(this));
+            if(this.getPlayers().every(player => !this.triadData[player.name].wins)) {
+                pipeline.unshift(new TriadBanPrompt(this));
+            }
         }
 
         this.pipeline.initialise(pipeline);

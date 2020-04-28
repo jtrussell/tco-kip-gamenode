@@ -43,9 +43,31 @@ class TriadChooseFirstDeckPrompt extends AllPlayerPrompt {
 
         const players = this.game.getPlayers();
         players.forEach(player => {
-            const decks = this.game.triadData[player.name].decks;
-            const deck = decks[this.deckChoices[player.name]];
+            const triadData = this.game.triadData[player.name];
+            const decks = triadData.decks;
+            const choiceUuid = this.deckChoices[player.name];
+            const deck = decks[choiceUuid];
             player.selectDeck(deck);
+
+            triadData.deckUuids.sort((a, b) => {
+                if(a === triadData.bannedDeck) {
+                    return 1;
+                }
+
+                if(b === triadData.bannedDeck) {
+                    return -1;
+                }
+
+                if(a === choiceUuid) {
+                    return -1;
+                }
+
+                if(b === choiceUuid) {
+                    return 1;
+                }
+
+                return 0;
+            });
         });
         this.game.initialisePlayers();
 

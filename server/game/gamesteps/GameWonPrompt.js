@@ -1,5 +1,6 @@
 const AllPlayerPrompt = require('./allplayerprompt');
 const RematchPrompt = require('./RematchPrompt');
+const TriadNextMatchPrompt = require('./Triad/NextMatchPrompt');
 const AdaptiveGameTwoPrompt = require('./AdaptiveGameTwoPrompt');
 const AdaptiveGameThreePrompt = require('./AdaptiveGameThreePrompt');
 const AdaptiveBidPrompt = require('./AdaptiveBidPrompt');
@@ -16,6 +17,11 @@ class GameWonPrompt extends AllPlayerPrompt {
             this.game.adaptiveData.records.push(winner.name);
             this.game.adaptiveData.match += 1;
         }
+
+        if(this.game.gameType === 'triad') {
+            this.game.triadData[winner.name].wins = this.game.triadData[winner.name].wins || 0;
+            this.game.triadData[winner.name].wins += 1;
+        }
     }
 
     completionCondition(player) {
@@ -23,37 +29,60 @@ class GameWonPrompt extends AllPlayerPrompt {
     }
 
     activePrompt() {
-        if(this.game.gameType !== 'adaptive') {
+        if(this.game.gameType === 'triad') {
+            const players = this.game.getPlayers();
+            const matchOver = players.some(player => {
+                return this.game.triadData[player.name].wins === 2;
+            });
+
+            if(matchOver) {
+                return {
+                    promptTitle: 'Match Won',
+                    menuTitle: { text: '{{player}} has won the match!', values: { player: this.winner.name } },
+                    buttons: []
+                };
+            }
+
             return {
                 promptTitle: 'Game Won',
                 menuTitle: { text: '{{player}} has won the game!', values: { player: this.winner.name } },
                 buttons: [
-                    { arg: 'continue', text: 'Continue Playing' },
-                    { arg: 'rematch', text: 'Rematch' }
+                    { arg: 'triad-next-game', text: 'Next Game' }
                 ]
             };
         }
 
-        let buttons = [];
-        let promptTitle = 'Game Won';
-        let menuTitle = { text: '{{player}} has won the adaptive match!', values: { player: this.winner.name } };
+        if(this.game.gameType === 'adaptive') {
+            let buttons = [];
+            let promptTitle = 'Game Won';
+            let menuTitle = { text: '{{player}} has won the adaptive match!', values: { player: this.winner.name } };
 
-        if(this.matchNumber === 1) {
-            menuTitle = { text: '{{player}} has won the game!', values: { player: this.winner.name } };
-            buttons = [
-                { arg: 'adaptive-game-2', text: 'Play Game 2' }
-            ];
-        } else if(this.matchNumber === 2 && this.game.adaptiveData.records[0] !== this.winner.name) {
-            menuTitle = { text: '{{player}} has won the game!', values: { player: this.winner.name } };
-            buttons = [
-                { arg: 'adaptive-game-3', text: 'Play Final Game' }
-            ];
+            if(this.matchNumber === 1) {
+                menuTitle = { text: '{{player}} has won the game!', values: { player: this.winner.name } };
+                buttons = [
+                    { arg: 'adaptive-game-2', text: 'Play Game 2' }
+                ];
+            } else if(this.matchNumber === 2 && this.game.adaptiveData.records[0] !== this.winner.name) {
+                menuTitle = { text: '{{player}} has won the game!', values: { player: this.winner.name } };
+                buttons = [
+                    { arg: 'adaptive-game-3', text: 'Play Final Game' }
+                ];
+            }
+
+            return {
+                promptTitle,
+                menuTitle,
+                buttons
+            };
         }
 
         return {
-            promptTitle,
-            menuTitle,
-            buttons
+            promptTitle: 'Game Won',
+            menuTitle: { text: '{{player}} has won the game!', values: { player: this.winner.name } },
+            buttons: [
+                { arg: 'continue', text: 'Continue Playing' },
+                { arg: 'rematch', text: 'Rematch' }
+            ]
         };
     }
 
@@ -74,16 +103,18 @@ class GameWonPrompt extends AllPlayerPrompt {
             return true;
         }
 
+        if(arg === 'triad-next-game') {
+            this.game.addMessage('{0} is ready for the next match', player);
+            this.game.queueStep(new TriadNextMatchPrompt(this.game, player));
+            return true;
+        }
+
         if(arg === 'adaptive-game-2') {
-            //this.game.addMessage('{0} would like to continue', player);
             this.game.queueStep(new AdaptiveGameTwoPrompt(this.game, player));
             return true;
         }
 
         if(arg === 'adaptive-game-3') {
-            //this.game.addMessage('{0} would like to continue', player);
-            //this.game.queueStep(new AdaptiveGameThreePrompt(this.game, player));
-
             const deckOwner = this.game.adaptiveData.records[0];
             this.game.addAlert('info', '{0} bids 0 for their deck', deckOwner);
             logger.info('{0} bids 0 for their deck', deckOwner);
