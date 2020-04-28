@@ -45,10 +45,29 @@ class NextMatchPrompt extends AllPlayerPrompt {
             return;
         }
 
-        const nextDeckUuid = this.game.triadData[this.game.winner.name].deckUuids[1];
-        const nextDeck = this.game.triadData[this.game.winner.name].decks[nextDeckUuid];
-        this.game.winner.selectDeck(nextDeck);
-        this.game.initialisePlayers();
+        const {
+            triadData,
+            winner
+        } = this.game;
+
+        const loser = this.game.getOpponent(winner);
+        const loserWins = triadData[loser.name].wins;
+
+        let loserDeckUuid = triadData[loser.name].firstDeck;
+        if(loserWins === 1) {
+            loserDeckUuid = triadData[loser.name].secondDeck;
+        }
+
+        const loserNextDeck = triadData[loser.name].decks[loserDeckUuid];
+
+        const winnerDeckUuid = triadData[winner.name].secondDeck;
+        const winnerNextDeck = triadData[winner.name].decks[winnerDeckUuid];
+
+        console.log(loserNextDeck.name, winnerNextDeck.name);
+
+        winner.selectDeck(winnerNextDeck);
+        loser.selectDeck(loserNextDeck);
+
         this.game.rematch();
     }
 }

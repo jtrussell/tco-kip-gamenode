@@ -313,6 +313,7 @@ class GameServer {
             player.socket.disconnect();
         }
 
+        console.log(game.getSaveState());
         this.zmqSocket.send('REMATCH', { game: game.getSaveState() });
 
         for(let player of Object.values(game.getPlayers())) {
