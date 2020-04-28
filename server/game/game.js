@@ -34,6 +34,7 @@ const TimeLimit = require('./TimeLimit');
 const PlainTextGameChatFormatter = require('./PlainTextGameChatFormatter');
 const CardVisibility = require('./CardVisibility');
 const AdaptiveShortChooseDeckPrompt = require('./gamesteps/AdaptiveShortChooseDeckPrompt');
+const TriadBanPrompt = require('./gamesteps/Triad/BanPrompt');
 
 class Game extends EventEmitter {
     constructor(details, options = {}) {
@@ -57,6 +58,7 @@ class Game extends EventEmitter {
         this.gameType = details.gameType;
         this.gameFormat = details.gameFormat;
         this.adaptiveData = details.adaptiveData;
+        this.triadData = details.triadData;
         this.currentAbilityWindow = null;
         this.currentActionWindow = null;
         this.currentEventWindow = null;
@@ -601,27 +603,24 @@ class Game extends EventEmitter {
 
         const playerNames = Object.keys(players);
 
-        if(playerNames.length === 2) {
-            if(this.gameType === 'adaptive' && this.adaptiveData.match === 3) {
-                const bidWinner = this.getPlayers().find(p => p.name === this.adaptiveData.bidWinner);
-                bidWinner.chains = this.adaptiveData.bidWinChains;
-                this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[1])[0];
-                if(this.adaptiveData.bidWinner === this.adaptiveData.records[1]) {
-                    this.swapPlayersDecks();
-                }
-            }
-
-            if(this.gameType === 'adaptive' && this.adaptiveData.match === 2) {
-                this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[0])[0];
-            }
-
-            if(this.gameFormat === 'reversal' || (this.gameType === 'adaptive' && this.adaptiveData.match === 2)) {
+        if(this.gameType === 'adaptive' && this.adaptiveData.match === 3) {
+            const bidWinner = this.getPlayers().find(p => p.name === this.adaptiveData.bidWinner);
+            bidWinner.chains = this.adaptiveData.bidWinChains;
+            this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[1])[0];
+            if(this.adaptiveData.bidWinner === this.adaptiveData.records[1]) {
                 this.swapPlayersDecks();
             }
         }
 
-        this.playersAndSpectators = players;
+        if(this.gameType === 'adaptive' && this.adaptiveData.match === 2) {
+            this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[0])[0];
+        }
 
+        if(this.gameFormat === 'reversal' || (this.gameType === 'adaptive' && this.adaptiveData.match === 2)) {
+            this.swapPlayersDecks();
+        }
+
+        this.playersAndSpectators = players;
         this.initialisePlayers();
 
         const forcedStartingPlayer = this.adaptiveData.startingPlayer;
@@ -632,6 +631,10 @@ class Game extends EventEmitter {
 
         if(this.gameType === 'adaptiveShort') {
             pipeline.unshift(new AdaptiveShortChooseDeckPrompt(this));
+        }
+
+        if(this.gameType === 'triad') {
+            pipeline.unshift(new TriadBanPrompt(this));
         }
 
         this.pipeline.initialise(pipeline);
@@ -1047,6 +1050,10 @@ class Game extends EventEmitter {
         return this.cardsInPlay.filter(card => card.type === 'creature');
     }
 
+    getOpponent(player) {
+        return this.getPlayers().find(p => p.name !== player.name);
+    }
+
     /**
      * Return all houses in play.
      *
@@ -1088,6 +1095,7 @@ class Game extends EventEmitter {
             gameType: this.gameType,
             gameFormat: this.gameFormat,
             adaptiveData: this.adaptiveData,
+            triadData: this.triadData,
             winner: this.winner ? this.winner.name : undefined,
             winReason: this.winReason,
             finishedAt: this.finishedAt
@@ -1117,6 +1125,7 @@ class Game extends EventEmitter {
                 muteSpectators: this.muteSpectators,
                 showHand: this.showHand,
                 adaptiveData: this.adaptiveData,
+                triadData: this.triadData,
                 spectators: this.getSpectators().map(spectator => {
                     return {
                         id: spectator.id,
@@ -1175,6 +1184,7 @@ class Game extends EventEmitter {
             gameType: this.gameType,
             gameFormat: this.gameFormat,
             adaptiveData: this.adaptiveData,
+            triadData: this.triadData,
             id: this.id,
             manualMode: this.manualMode,
             messages: this.gameChat.messages,

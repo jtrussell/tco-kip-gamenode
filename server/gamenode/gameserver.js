@@ -292,9 +292,6 @@ class GameServer {
     }
 
     rematch(game) {
-        logger.info('Rematching with:');
-        logger.info(JSON.stringify(game.getSaveState()));
-
         for(let player of Object.values(game.getSpectators())) {
             logger.info('Game is going to rematch. Disconnecting spectator' + player.name);
             this.zmqSocket.send('PLAYERLEFT', {
@@ -337,8 +334,6 @@ class GameServer {
             router: this,
             cardData: this.cardData
         });
-        logger.info('Creating game with:');
-        logger.info(JSON.stringify(game.getSaveState()));
         game.on('onTimeExpired', () => {
             this.sendGameState(game);
         });

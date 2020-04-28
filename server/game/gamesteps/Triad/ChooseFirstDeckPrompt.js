@@ -1,0 +1,56 @@
+const AllPlayerPrompt = require('../allplayerprompt');
+
+class TriadChooseFirstDeckPrompt extends AllPlayerPrompt {
+    constructor(game) {
+        super(game);
+        this.deckChoices = {};
+    }
+
+    completionCondition(player) {
+        return !!this.deckChoices[player.name];
+    }
+
+    activePrompt(player) {
+        let deckUuids = this.game.triadData[player.name].deckUuids;
+        deckUuids = deckUuids.filter(uuid => uuid !== this.game.triadData[player.name].bannedDeck);
+
+        return {
+            menuTitle: { text: 'Choose your first deck' },
+            buttons: [
+                { text: 'Deck A', arg: deckUuids[0] },
+                { text: 'Deck B', arg: deckUuids[1] }
+            ],
+            promptType: 'triad-choose-deck'
+        };
+    }
+
+    waitingPrompt() {
+        return { menuTitle: 'Waiting for opponent to pick a deck' };
+    }
+
+    onMenuCommand(player, uuid) {
+        const selectedDeck = this.game.triadData[player.name].decks[uuid];
+
+        this.game.addMessage(`${player.name} picked ${selectedDeck.name}`);
+        this.deckChoices[player.name] = uuid;
+        return true;
+    }
+
+    onCompleted() {
+        if(this.cancelled) {
+            return;
+        }
+
+        const players = this.game.getPlayers();
+        players.forEach(player => {
+            const decks = this.game.triadData[player.name].decks;
+            const deck = decks[this.deckChoices[player.name]];
+            player.selectDeck(deck);
+        });
+        this.game.initialisePlayers();
+
+        return true;
+    }
+}
+
+module.exports = TriadChooseFirstDeckPrompt;
