@@ -47,10 +47,7 @@ class TriadBanPrompt extends AllPlayerPrompt {
             return null;
         }
 
-        const selectedDeck = this.game.triadData[opponent.name].decks[uuid];
-
         this.game.triadData[opponent.name].bannedDeck = uuid;
-        this.game.addMessage(`${player.name} banned ${selectedDeck.name}`);
         return true;
     }
 
@@ -58,6 +55,13 @@ class TriadBanPrompt extends AllPlayerPrompt {
         if(this.cancelled) {
             return;
         }
+
+        this.game.getPlayers().forEach(player => {
+            const opponent = this.game.getOpponent(player);
+            const bannedDeckUiid = this.game.triadData[opponent.name].bannedDeck;
+            const bannedDeck = this.game.triadData[opponent.name].decks[bannedDeckUiid];
+            this.game.addMessage(`${player.name} banned ${bannedDeck.name}`);
+        });
 
         this.game.queueStep(new ChooseFirstDeckPrompt(this.game));
         return true;

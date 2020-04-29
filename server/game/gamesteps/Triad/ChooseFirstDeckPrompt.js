@@ -29,9 +29,6 @@ class TriadChooseFirstDeckPrompt extends AllPlayerPrompt {
     }
 
     onMenuCommand(player, uuid) {
-        const selectedDeck = this.game.triadData[player.name].decks[uuid];
-
-        this.game.addMessage(`${player.name} picked ${selectedDeck.name}`);
         this.deckChoices[player.name] = uuid;
         return true;
     }
@@ -48,6 +45,7 @@ class TriadChooseFirstDeckPrompt extends AllPlayerPrompt {
             const choiceUuid = this.deckChoices[player.name];
             const deck = decks[choiceUuid];
             player.selectDeck(deck);
+            this.game.addMessage(`${player.name} picked ${deck.name}`);
 
             triadData.firstDeck = choiceUuid;
             triadData.secondDeck = triadData.deckUuids.find(uuid => uuid !== choiceUuid && uuid !== triadData.bannedDeck);
