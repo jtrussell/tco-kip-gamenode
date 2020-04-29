@@ -4,11 +4,22 @@ const ChooseFirstDeckPrompt = require('./ChooseFirstDeckPrompt');
 class TriadBanPrompt extends AllPlayerPrompt {
     completionCondition(player) {
         const opponent = this.game.getOpponent(player);
+
+        if(!opponent) {
+            return true;
+        }
+
         return !!this.game.triadData[opponent.name].bannedDeck;
     }
 
     activePrompt(player) {
         const opponent = this.game.getOpponent(player);
+
+        if(!opponent) {
+            this.complete();
+            return null;
+        }
+
         const deckUuids = this.game.triadData[opponent.name].deckUuids;
 
         return {
@@ -31,6 +42,11 @@ class TriadBanPrompt extends AllPlayerPrompt {
 
     onMenuCommand(player, uuid) {
         const opponent = this.game.getOpponent(player);
+        if(!opponent) {
+            this.complete();
+            return null;
+        }
+
         const selectedDeck = this.game.triadData[opponent.name].decks[uuid];
 
         this.game.triadData[opponent.name].bannedDeck = uuid;

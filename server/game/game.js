@@ -35,6 +35,7 @@ const PlainTextGameChatFormatter = require('./PlainTextGameChatFormatter');
 const CardVisibility = require('./CardVisibility');
 const AdaptiveShortChooseDeckPrompt = require('./gamesteps/AdaptiveShortChooseDeckPrompt');
 const TriadBanPrompt = require('./gamesteps/Triad/BanPrompt');
+const logger = require('../log.js');
 
 class Game extends EventEmitter {
     constructor(details, options = {}) {
@@ -620,14 +621,26 @@ class Game extends EventEmitter {
             this.swapPlayersDecks();
         }
 
+        logger.info(this.gameType);
         if(this.gameType === 'triad') {
-            const match = this.getPlayers().reduce((sum, player) => {
-                return sum + Number.isNaN(this.triadData[player.name].wins) ? 0 : this.triadData[player.name].wins;
-            }, 0);
+            this.getPlayers().forEach(player => {
+                this.triadData[player.name].wins = this.triadData[player.name].wins || 0;
+                logger.info(player.name);
+                logger.info(this.triadData[player.name].wins);
+                logger.info(this.triadData[player.name].firstDeck);
+                logger.info(this.triadData[player.name].secondDeck);
+                logger.info(this.triadData[player.name].bannedDeck);
+            });
+            let match = 0;
+            this.getPlayers().forEach(player => {
+                match += this.triadData[player.name].wins;
+            });
+            logger.info(this.gameType + ' ' + match);
 
             if(match > 0) {
                 this.getPlayers().forEach(player => {
                     const wins = this.triadData[player.name].wins || 0;
+                    logger.info(this.gameType + ' ' + player.name + ' ' + wins);
                     let deckUuid = wins === 0 ? this.triadData[player.name].firstDeck : this.triadData[player.name].secondDeck;
                     player.selectDeck(this.triadData[player.name].decks[deckUuid]);
                 });

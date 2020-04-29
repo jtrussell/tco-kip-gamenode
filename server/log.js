@@ -28,7 +28,7 @@ function rest(info) {
             continue;
         }
 
-        str += `${key}=${value} `;
+        str += value;
     }
 
     return str;
@@ -39,7 +39,7 @@ const logger = createLogger({
         format.timestamp(),
         format.splat(),
         format.errors({ stack: true }),
-        format.printf(info => `${info.timestamp} ${info.level}: ${info.message}\n${rest(info)}}`)
+        format.printf(info => `${info.timestamp} ${info.level}: ${info.message}${rest(info)}}`)
     ),
     transports: [
         new transports.Console({ format: format.combine(
@@ -47,7 +47,7 @@ const logger = createLogger({
             format.colorize(),
             format.timestamp(),
             format.errors({ stack: true }),
-            format.printf(info => `${info.timestamp} ${info.level}: ${info.message}\n${rest(info)}`)
+            format.printf(info => `${info.timestamp} ${info.level}: ${info.message}${rest(info)}`)
         ) }),
         rotate
     ]
