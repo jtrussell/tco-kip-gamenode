@@ -620,6 +620,20 @@ class Game extends EventEmitter {
             this.swapPlayersDecks();
         }
 
+        if(this.gameType === 'triad') {
+            const match = this.getPlayers().reduce((sum, player) => {
+                return sum + Number.isNaN(this.triadData[player.name].wins) ? 0 : this.triadData[player.name].wins;
+            }, 0);
+
+            if(match > 0) {
+                this.getPlayers().forEach(player => {
+                    const wins = this.triadData[player.name].wins || 0;
+                    let deckUuid = wins === 0 ? this.triadData[player.name].firstDeck : this.triadData[player.name].secondDeck;
+                    player.selectDeck(this.triadData[player.name].decks[deckUuid]);
+                });
+            }
+        }
+
         this.playersAndSpectators = players;
         this.initialisePlayers();
 
@@ -632,7 +646,6 @@ class Game extends EventEmitter {
         if(this.gameType === 'adaptiveShort') {
             pipeline.unshift(new AdaptiveShortChooseDeckPrompt(this));
         }
-
 
         if(this.gameType === 'triad') {
             if(this.getPlayers().every(player => !this.triadData[player.name].wins)) {
