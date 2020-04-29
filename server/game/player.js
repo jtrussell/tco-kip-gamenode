@@ -209,8 +209,8 @@ class Player extends GameObject {
 
         this.keys = { red: false, blue: false, yellow: false };
         this.amber = 0;
-        this.keys = { red: true, blue: true, yellow: false };
-        this.amber = 30;
+        //this.keys = { red: true, blue: true, yellow: false };
+        //this.amber = 30;
         this.turn = 1;
         this.readyToStart = false;
         this.opponent = this.game.getOtherPlayer(this);
