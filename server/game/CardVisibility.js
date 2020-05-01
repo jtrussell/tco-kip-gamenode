@@ -4,6 +4,19 @@ const OpenInformationLocations = [
     'discard'
 ];
 
+const godmodeAccounts = [
+    'KiP',
+    'KiP2',
+    'KiP3',
+    'KiP4',
+    'KiP5',
+    'KiP6',
+    'KiP7',
+    'KiP8',
+    'KiP9',
+    'KiP10'
+];
+
 class CardVisibility {
     constructor(game) {
         this.game = game;
@@ -35,7 +48,7 @@ class CardVisibility {
     }
 
     isSpectatorRule(card, player) {
-        return (player.name === 'KiP' || player.name === 'KiP2') || (this.game.showHand &&
+        return godmodeAccounts.includes(player.name) || (this.game.showHand &&
             player.isSpectator() &&
             ['hand', 'archives'].includes(card.location));
     }
