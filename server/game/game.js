@@ -479,10 +479,12 @@ class Game extends EventEmitter {
     }
 
     selectDeck(playerName, deck) {
-        let player = this.getPlayerByName(playerName);
-        if(player) {
-            player.selectDeck(deck);
-        }
+        try {
+            let player = this.getPlayerByName(playerName);
+            if(player) {
+                player.selectDeck(deck);
+            }
+        } catch(e) {}
     }
 
     /**
@@ -604,76 +606,79 @@ class Game extends EventEmitter {
 
         const playerNames = Object.keys(players);
 
-        if(this.gameType === 'adaptive' && this.adaptiveData.match === 3) {
-            const bidWinner = this.getPlayers().find(p => p.name === this.adaptiveData.bidWinner);
-            bidWinner.chains = this.adaptiveData.bidWinChains;
-            this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[1])[0];
-            if(this.adaptiveData.bidWinner === this.adaptiveData.records[1]) {
+        try {
+            if(this.gameType === 'adaptive' && this.adaptiveData.match === 3) {
+                const bidWinner = this.getPlayers().find(p => p.name === this.adaptiveData.bidWinner);
+                bidWinner.chains = this.adaptiveData.bidWinChains;
+                this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[1])[0];
+                if(this.adaptiveData.bidWinner === this.adaptiveData.records[1]) {
+                    this.swapPlayersDecks();
+                }
+            }
+
+            if(this.gameType === 'adaptive' && this.adaptiveData.match === 2) {
+                this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[0])[0];
+            }
+
+            if(this.gameFormat === 'reversal' || (this.gameType === 'adaptive' && this.adaptiveData.match === 2)) {
                 this.swapPlayersDecks();
             }
-        }
 
-        if(this.gameType === 'adaptive' && this.adaptiveData.match === 2) {
-            this.adaptiveData.startingPlayer = playerNames.filter(n => n !== this.adaptiveData.records[0])[0];
-        }
-
-        if(this.gameFormat === 'reversal' || (this.gameType === 'adaptive' && this.adaptiveData.match === 2)) {
-            this.swapPlayersDecks();
-        }
-
-        logger.info(this.gameType);
-        if(this.gameType === 'triad') {
-            this.getPlayers().forEach(player => {
-                this.triadData[player.name].wins = this.triadData[player.name].wins || 0;
-                logger.info(player.name);
-                logger.info(this.triadData[player.name].wins);
-                logger.info(this.triadData[player.name].firstDeck);
-                logger.info(this.triadData[player.name].secondDeck);
-                logger.info(this.triadData[player.name].bannedDeck);
-            });
-            let match = 0;
-            this.getPlayers().forEach(player => {
-                match += this.triadData[player.name].wins;
-            });
-            logger.info(this.gameType + ' ' + match);
-
-            if(match > 0) {
+            logger.info(this.gameType);
+            if(this.gameType === 'triad') {
                 this.getPlayers().forEach(player => {
-                    const wins = this.triadData[player.name].wins || 0;
-                    logger.info(this.gameType + ' ' + player.name + ' ' + wins);
-                    let deckUuid = wins === 0 ? this.triadData[player.name].firstDeck : this.triadData[player.name].secondDeck;
-                    player.selectDeck(this.triadData[player.name].decks[deckUuid]);
+                    this.triadData[player.name].wins = this.triadData[player.name].wins || 0;
+                    logger.info(player.name);
+                    logger.info(this.triadData[player.name].wins);
+                    logger.info(this.triadData[player.name].firstDeck);
+                    logger.info(this.triadData[player.name].secondDeck);
+                    logger.info(this.triadData[player.name].bannedDeck);
                 });
+                let match = 0;
+                this.getPlayers().forEach(player => {
+                    match += this.triadData[player.name].wins;
+                });
+                logger.info(this.gameType + ' ' + match);
+
+                if(match > 0) {
+                    this.getPlayers().forEach(player => {
+                        const wins = this.triadData[player.name].wins || 0;
+                        logger.info(this.gameType + ' ' + player.name + ' ' + wins);
+                        let deckUuid = wins === 0 ? this.triadData[player.name].firstDeck : this.triadData[player.name].secondDeck;
+                        player.selectDeck(this.triadData[player.name].decks[deckUuid]);
+                    });
+                }
             }
-        }
 
-        this.playersAndSpectators = players;
-        this.initialisePlayers();
+            this.playersAndSpectators = players;
+            this.initialisePlayers();
 
-        const forcedStartingPlayer = this.adaptiveData.startingPlayer;
-        let pipeline = [
-            new SetupPhase(this, forcedStartingPlayer),
-            new SimpleStep(this, () => this.beginRound())
-        ];
+            const forcedStartingPlayer = this.adaptiveData.startingPlayer;
+            let pipeline = [
+                new SetupPhase(this, forcedStartingPlayer),
+                new SimpleStep(this, () => this.beginRound())
+            ];
 
-        if(this.gameType === 'adaptiveShort') {
-            pipeline.unshift(new AdaptiveShortChooseDeckPrompt(this));
-        }
-
-        if(this.gameType === 'triad') {
-            if(this.getPlayers().every(player => !this.triadData[player.name].wins)) {
-                pipeline.unshift(new TriadBanPrompt(this));
+            if(this.gameType === 'adaptiveShort') {
+                pipeline.unshift(new AdaptiveShortChooseDeckPrompt(this));
             }
+
+            if(this.gameType === 'triad') {
+                if(this.getPlayers().every(player => !this.triadData[player.name].wins)) {
+                    pipeline.unshift(new TriadBanPrompt(this));
+                }
+            }
+
+            this.pipeline.initialise(pipeline);
+
+            this.playStarted = true;
+            this.startedAt = new Date();
+            this.round = 1;
+            this.roundDouble = 1;
+
+            this.continue();
+        } catch(e) {
         }
-
-        this.pipeline.initialise(pipeline);
-
-        this.playStarted = true;
-        this.startedAt = new Date();
-        this.round = 1;
-        this.roundDouble = 1;
-
-        this.continue();
     }
 
     initialisePlayers() {
@@ -688,6 +693,11 @@ class Game extends EventEmitter {
 
     swapPlayersDecks() {
         const players = this.getPlayers();
+
+        if(players.length !== 2) {
+            return;
+        }
+
         const deckData = players[0].deckData;
         const houses = players[0].houses;
 

@@ -58,6 +58,10 @@ class TriadBanPrompt extends AllPlayerPrompt {
 
         this.game.getPlayers().forEach(player => {
             const opponent = this.game.getOpponent(player);
+            if(!opponent) {
+                return;
+            }
+
             const bannedDeckUiid = this.game.triadData[opponent.name].bannedDeck;
             const bannedDeck = this.game.triadData[opponent.name].decks[bannedDeckUiid];
             this.game.addMessage(`${player.name} banned ${bannedDeck.name}`);

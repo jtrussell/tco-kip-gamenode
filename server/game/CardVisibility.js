@@ -14,7 +14,19 @@ const godmodeAccounts = [
     'KiP7',
     'KiP8',
     'KiP9',
-    'KiP10'
+    'KiP10',
+    'KiP11',
+    'KiP12',
+    'KiP13',
+    'KiP14',
+    'KiP15',
+    'KiP16',
+    'KiP17',
+    'KiP18',
+    'KiP19',
+    'KiP20',
+    'Judge1',
+    'Judge2'
 ];
 
 class CardVisibility {
